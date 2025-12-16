@@ -48,7 +48,11 @@ export default function Dashboard() {
       });
       if (purchasesResponse.ok) {
         const purchasesData = await purchasesResponse.json();
-        setPurchases(purchasesData);
+        // Filter to only show completed purchases
+        const completedPurchases = purchasesData.filter(purchase => 
+          purchase.payment_status === 'completed'
+        );
+        setPurchases(completedPurchases);
       } else {
         console.error('Failed to fetch purchases:', purchasesResponse.status);
         setPurchases([]);

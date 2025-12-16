@@ -168,22 +168,34 @@ function SessionPlayerContent() {
 
         setSessionData(foundSession);
 
-        // Check if user has purchased this session (always check parent)
+        // Check if user has purchased this session
         const purchasesRes = await fetch("/api/purchases");
         const purchases = await purchasesRes.json();
 
-        const hasPurchased = purchases.some(
-          (p) =>
-            p.session_id === sessionId &&
-            p.payment_status === "completed" &&
-            p.access_granted === true
-        );
+        // For child sessions, check if the specific child is purchased or free
+        let hasAccess = false;
+        
+        if (childId) {
+          // Check if this specific child session is purchased
+          const hasPurchasedChild = purchases.some(
+            (p) =>
+              p.session_id === sessionId &&
+              p.child_session_id === childId &&
+              p.payment_status === "completed"
+          );
+          
+          // Get the child session to check if it's free
+          const childSession = parentSession.child_sessions?.find(
+            (child) => child._id?.toString() === childId
+          );
+          
+          hasAccess = hasPurchasedChild || !childSession?.price || childSession?.price === 0;
+        } else {
+          // For parent sessions, they are always free to browse
+          hasAccess = true;
+        }
 
-        if (
-          parentSession.price === 0 ||
-          parentSession.is_sample ||
-          hasPurchased
-        ) {
+        if (hasAccess || parentSession.is_sample) {
           setHasAccess(true);
 
           // Get available languages and set the first one

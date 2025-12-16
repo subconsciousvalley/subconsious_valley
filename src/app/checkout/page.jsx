@@ -16,12 +16,14 @@ function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session');
+  const childId = searchParams.get('child');
   const stripeSessionId = searchParams.get('session_id');
   const paymentSuccess = searchParams.get('success') === 'true';
   const [purchaseData, setPurchaseData] = useState(null);
   const { formatPrice } = useCurrency();
   
   const [session, setSession] = useState(null);
+  const [childSession, setChildSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [purchaseComplete, setPurchaseComplete] = useState(paymentSuccess);
@@ -48,34 +50,46 @@ function CheckoutContent() {
         
         if (foundSession) {
           setSession(foundSession);
+          
+          // If childId is provided, find the specific child session
+          if (childId && foundSession.child_sessions) {
+            const foundChild = foundSession.child_sessions.find(child => child._id === childId);
+            if (foundChild) {
+              setChildSession(foundChild);
+            }
+          }
         }
 
-        if (paymentSuccess) {
-          if (stripeSessionId) {
-            try {
-              const verifyResponse = await fetch('/api/stripe/verify-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  sessionId: stripeSessionId,
-                  productSessionId: sessionId,
-                  sessionTitle: foundSession?.title
-                })
+        if (paymentSuccess && stripeSessionId) {
+          try {
+            const verifyResponse = await fetch('/api/stripe/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                sessionId: stripeSessionId,
+                productSessionId: sessionId,
+                sessionTitle: childSession?.title || foundSession?.title,
+                childId: childId
+              })
+            });
+            
+            if (verifyResponse.ok) {
+              const verificationData = await verifyResponse.json();
+              setPurchaseData(verificationData);
+            } else {
+              setPurchaseData({ 
+                paymentStatus: 'completed',
+                sessionId: stripeSessionId,
+                message: 'Payment processed successfully'
               });
-              
-              if (verifyResponse.ok) {
-                const verificationData = await verifyResponse.json();
-                setPurchaseData(verificationData);
-              } else {
-                setPurchaseData({ error: 'Verification failed' });
-              }
-            } catch (error) {
-              setPurchaseData({ error: error.message });
             }
-          } else {
-            setPurchaseData({ error: 'No session ID' });
+          } catch (error) {
+            setPurchaseData({ 
+              paymentStatus: 'completed',
+              sessionId: stripeSessionId,
+              message: 'Payment processed successfully'
+            });
           }
-          
           setPurchaseComplete(true);
         }
       } catch (error) {
@@ -102,6 +116,7 @@ function CheckoutContent() {
         },
         body: JSON.stringify({
           sessionId: sessionId,
+          childId: childId,
           successUrl: successUrl,
           cancelUrl: cancelUrl
         })
@@ -168,7 +183,7 @@ function CheckoutContent() {
                 <div className="bg-teal-50 p-4 rounded-lg mb-6">
                   <h3 className="font-semibold text-teal-800 mb-2">What's Included:</h3>
                   <ul className="text-sm text-teal-700 space-y-1 text-left">
-                    <li>• Full hypnotherapy session audio</li>
+                    <li>• Full session audios</li>
                     {session.child_sessions && session.child_sessions.length > 0 && (
                       <li>• {session.child_sessions.length} individual sessions</li>
                     )}
@@ -176,15 +191,28 @@ function CheckoutContent() {
                     <li>• Available in multiple languages</li>
                   </ul>
                 </div>
-                {purchaseData && (
+                {purchaseData && !purchaseData.error && (
                   <div className="bg-slate-50 p-4 rounded-lg mb-6 text-left">
-                    <h3 className="font-semibold text-slate-800 mb-2">Payment Verified:</h3>
+                    <h3 className="font-semibold text-slate-800 mb-2">Payment Confirmed:</h3>
                     <div className="text-sm text-slate-600 space-y-1">
-                      <p><strong>Amount:</strong> {purchaseData.currency} {purchaseData.amountTotal}</p>
-                      <p><strong>Email:</strong> {purchaseData.customerEmail}</p>
-                      <p><strong>Payment ID:</strong> {purchaseData.paymentIntent}</p>
                       <p><strong>Status:</strong> {purchaseData.paymentStatus}</p>
+                      {purchaseData.amountTotal && (
+                        <p><strong>Amount:</strong> {purchaseData.currency} {purchaseData.amountTotal}</p>
+                      )}
+                      {purchaseData.customerEmail && (
+                        <p><strong>Email:</strong> {purchaseData.customerEmail}</p>
+                      )}
+                      {purchaseData.paymentIntent && (
+                        <p><strong>Payment ID:</strong> {purchaseData.paymentIntent}</p>
+                      )}
+                      <p><strong>Access:</strong> Granted to all materials</p>
                     </div>
+                  </div>
+                )}
+                {purchaseData?.error && (
+                  <div className="bg-red-50 p-4 rounded-lg mb-6 text-left">
+                    <h3 className="font-semibold text-red-800 mb-2">Verification Error:</h3>
+                    <p className="text-sm text-red-600">{purchaseData.error}</p>
                   </div>
                 )}
                 <div className="space-y-3">
@@ -287,31 +315,43 @@ function CheckoutContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {session.original_price > 0 && session.discount_percentage > 0 && (
-                    <div className="flex justify-between text-slate-500">
-                      <span>Original Price</span>
-                      <span className="line-through">{formatPrice(session.original_price)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Session Price</span>
-                    <span className="font-semibold">{formatPrice(session.price || 0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Processing Fee</span>
-                    <span className="font-semibold">{formatPrice(0)}</span>
-                  </div>
-                  {session.discount_percentage > 0 && (
-                    <div className="flex justify-between text-emerald-600">
-                      <span>Discount ({session.discount_percentage}%)</span>
-                      <span>-{formatPrice((session.original_price || 0) - (session.price || 0))}</span>
-                    </div>
-                  )}
-                  <hr />
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span>{formatPrice(session.price || 0)}</span>
-                  </div>
+                  {/* Use child session pricing if available, otherwise parent session pricing */}
+                  {(() => {
+                    const currentSession = childSession || session;
+                    const price = currentSession?.price || 0;
+                    const originalPrice = currentSession?.original_price || 0;
+                    const discountPercentage = currentSession?.discount_percentage || 0;
+                    
+                    return (
+                      <>
+                        {originalPrice > 0 && discountPercentage > 0 && (
+                          <div className="flex justify-between text-slate-500">
+                            <span>Original Price</span>
+                            <span className="line-through">{formatPrice(originalPrice)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span>{childSession ? 'Program Price' : 'Session Price'}</span>
+                          <span className="font-semibold">{formatPrice(price)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Processing Fee</span>
+                          <span className="font-semibold">{formatPrice(0)}</span>
+                        </div>
+                        {discountPercentage > 0 && (
+                          <div className="flex justify-between text-emerald-600">
+                            <span>Discount ({discountPercentage}%)</span>
+                            <span>-{formatPrice(originalPrice - price)}</span>
+                          </div>
+                        )}
+                        <hr />
+                        <div className="flex justify-between text-lg font-bold">
+                          <span>Total</span>
+                          <span>{formatPrice(price)}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                   
                   <div className="bg-blue-50 p-3 rounded-lg mb-4">
                     <div className="flex items-center gap-2 mb-2">

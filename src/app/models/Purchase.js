@@ -5,9 +5,17 @@ const purchaseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  child_session_id: {
+    type: String,
+    required: false
+  },
   session_title: {
     type: String,
     required: true
+  },
+  child_session_title: {
+    type: String,
+    required: false
   },
   user_email: {
     type: String,

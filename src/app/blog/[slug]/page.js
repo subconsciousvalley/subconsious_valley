@@ -80,7 +80,7 @@ export default function BlogPost() {
         >
           <div className="mb-8">
             <Link href="/blog">
-              <Button variant="ghost" className="cursor-pointer">
+              <Button variant="outline" className="cursor-pointer bg-white text-slate-700 hover:bg-slate-100 border-black">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Blog
               </Button>
@@ -118,7 +118,7 @@ export default function BlogPost() {
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-8">
                   {post.tags.map(tag => (
-                    <Badge key={tag} variant="outline">{tag}</Badge>
+                    <Badge key={tag} variant="outline" className=" text-gray-700 border-black-300">{tag}</Badge>
                   ))}
                 </div>
               )}
@@ -140,14 +140,14 @@ export default function BlogPost() {
                         };
                         
                         currentList.push(
-                          <li key={index} className="mb-2">
+                          <li key={index} className="mb-2 text-slate-700">
                             {renderText(line.replace('- ', ''))}
                           </li>
                         );
                       } else {
                         if (currentList.length > 0) {
                           elements.push(
-                            <ul key={`list-${index}`} className="list-disc pl-6 mb-6">
+                            <ul key={`list-${index}`} className="list-disc pl-6 mb-6 text-slate-700">
                               {currentList}
                             </ul>
                           );
@@ -162,7 +162,7 @@ export default function BlogPost() {
                           );
                         } else if (line.startsWith('**') && line.endsWith('**')) {
                           elements.push(
-                            <p key={index} className="font-bold mb-4">
+                            <p key={index} className="font-bold mb-4 text-slate-800">
                               {line.replace(/\*\*/g, '')}
                             </p>
                           );
@@ -185,7 +185,7 @@ export default function BlogPost() {
                     
                     if (currentList.length > 0) {
                       elements.push(
-                        <ul key="final-list" className="list-disc pl-6 mb-6">
+                        <ul key="final-list" className="list-disc pl-6 mb-6 text-slate-700">
                           {currentList}
                         </ul>
                       );

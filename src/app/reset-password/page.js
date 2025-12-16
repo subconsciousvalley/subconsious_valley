@@ -202,7 +202,7 @@ export default function ResetPassword() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
+                className="w-full bg-gradient-to-r text-white from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700"
                 size="lg"
               >
                 {isLoading ? 'Resetting...' : 'Reset Password'}

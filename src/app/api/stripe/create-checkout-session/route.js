@@ -20,7 +20,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const { sessionId, successUrl, cancelUrl } = await request.json();
+    const { sessionId, childId, successUrl, cancelUrl } = await request.json();
 
     // Validate required fields
     if (!sessionId || !successUrl || !cancelUrl) {
@@ -35,8 +35,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    // Validate price
-    const price = sessionData.price || 0;
+    // Get pricing from child session if childId provided, otherwise use parent session
+    let price = 0;
+    let sessionTitle = sessionData.title;
+    let childSession = null;
+    
+    if (childId && sessionData.child_sessions) {
+      childSession = sessionData.child_sessions.find(child => child._id.toString() === childId);
+      if (childSession) {
+        price = childSession.price || 0;
+        sessionTitle = childSession.title;
+      }
+    } else {
+      price = sessionData.price || 0;
+    }
+    
     if (price <= 0) {      
       return NextResponse.json({ error: 'Invalid session price' }, { status: 400 });
     }
@@ -50,8 +63,8 @@ export async function POST(request) {
           price_data: {
             currency: (sessionData.currency?.toLowerCase() || 'aed'),
             product_data: {
-              name: sessionData.title,
-              description: sessionData.description,
+              name: sessionTitle,
+              description: childSession?.description || sessionData.description,
               images: sessionData.image_url ? [sessionData.image_url] : [],
               metadata: {
                 session_id: sessionId,
@@ -69,7 +82,9 @@ export async function POST(request) {
       expires_at: Math.floor(Date.now() / 1000) + (30 * 60), // 30 minutes
       metadata: {
         sessionId: sessionId,
-        sessionTitle: sessionData.title,
+        sessionTitle: sessionTitle,
+        childId: childId || null,
+        childTitle: childSession?.title || null,
         userEmail: session.user.email,
         userName: session.user.name || '',
         environment: process.env.NODE_ENV || 'development',
@@ -77,6 +92,7 @@ export async function POST(request) {
       payment_intent_data: {
         metadata: {
           sessionId: sessionId,
+          childId: childId || null,
           userEmail: session.user.email,
         },
       },

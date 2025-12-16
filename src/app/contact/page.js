@@ -302,7 +302,7 @@ export default function ContactPage({ t: propT }) {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name">{t("full_name")} *</Label>
+                        <Label htmlFor="name" className="text-slate-700" style={{color: '#334155'}}>{t("full_name")} *</Label>
                         <Input
                           id="name"
                           value={formData.name}
@@ -310,11 +310,11 @@ export default function ContactPage({ t: propT }) {
                             handleInputChange("name", e.target.value)
                           }
                           required
-                          className="mt-1"
+                          className="mt-1 bg-white text-slate-900"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">{t("email_address")} *</Label>
+                        <Label htmlFor="email" className="text-slate-700" style={{color: '#334155'}}>{t("email_address")} *</Label>
                         <Input
                           id="email"
                           type="email"
@@ -323,18 +323,18 @@ export default function ContactPage({ t: propT }) {
                             handleInputChange("email", e.target.value)
                           }
                           required
-                          className="mt-1"
+                          className="mt-1 bg-white text-slate-900"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="language">{t("pref_language")}</Label>
+                      <Label htmlFor="language" className="text-slate-700" style={{color: '#334155'}}>{t("pref_language")}</Label>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
-                            className="w-full justify-between mt-1"
+                            className="w-full justify-between mt-1 bg-white text-slate-700"
                           >
                             {formData.preferred_language === "english" &&
                               "English"}
@@ -347,13 +347,13 @@ export default function ContactPage({ t: propT }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="start"
-                          className="w-[var(--radix-dropdown-menu-trigger-width)]"
+                          className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white border border-gray-200 shadow-lg"
                         >
                           <DropdownMenuItem
                             onClick={() =>
                               handleInputChange("preferred_language", "english")
                             }
-                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
+                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700 text-slate-700"
                           >
                             English
                           </DropdownMenuItem>
@@ -361,7 +361,7 @@ export default function ContactPage({ t: propT }) {
                             onClick={() =>
                               handleInputChange("preferred_language", "hindi")
                             }
-                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
+                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700 text-slate-700"
                           >
                             हिंदी
                           </DropdownMenuItem>
@@ -369,7 +369,7 @@ export default function ContactPage({ t: propT }) {
                             onClick={() =>
                               handleInputChange("preferred_language", "arabic")
                             }
-                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700"
+                            className="cursor-pointer hover:bg-teal-50 hover:text-teal-700 text-slate-700"
                           >
                             العربية
                           </DropdownMenuItem>
@@ -378,7 +378,7 @@ export default function ContactPage({ t: propT }) {
                     </div>
 
                     <div>
-                      <Label htmlFor="subject">{t("subject")} *</Label>
+                      <Label htmlFor="subject" className="text-slate-700" style={{color: '#334155'}}>{t("subject")} *</Label>
                       <Input
                         id="subject"
                         value={formData.subject}
@@ -386,12 +386,12 @@ export default function ContactPage({ t: propT }) {
                           handleInputChange("subject", e.target.value)
                         }
                         required
-                        className="mt-1"
+                        className="mt-1 bg-white text-slate-900"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="message">{t("message")} *</Label>
+                      <Label htmlFor="message" className="text-slate-700" style={{color: '#334155'}}>{t("message")} *</Label>
                       <Textarea
                         id="message"
                         value={formData.message}
@@ -400,7 +400,7 @@ export default function ContactPage({ t: propT }) {
                         }
                         required
                         rows={5}
-                        className="mt-1"
+                        className="mt-1 bg-white text-slate-900"
                         placeholder={t("message_placeholder")}
                       />
                     </div>

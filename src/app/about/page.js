@@ -505,8 +505,8 @@ export default function About({ t: propT }) {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm font-medium text-teal-600">{testimonial.title}</p>
-                        <p className="text-sm text-slate-500">{testimonial.company}</p>
+                        {/* <p className="text-sm font-medium text-teal-600">{testimonial.title}</p> */}
+                        {/* <p className="text-sm text-slate-500">{testimonial.company}</p> */}
                       </div>
                     </div>
                     
@@ -804,7 +804,7 @@ export default function About({ t: propT }) {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-teal-200 hover:bg-teal-50"
+                className="border-teal-200 hover:bg-teal-50 bg-white text-slate-700 hover:text-teal-700"
                 onClick={() => router.push("/#contact-section")}
               >
                 {t("get_in_touch")}

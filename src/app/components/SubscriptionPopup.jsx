@@ -98,7 +98,7 @@ export default function SubscriptionPopup({ isOpen, onClose }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="name" className="text-sm font-medium !text-gray-700">
               Full Name *
             </Label>
             <Input

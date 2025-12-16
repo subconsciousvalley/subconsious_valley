@@ -47,10 +47,13 @@ export default function Sessions() {
         cache: 'no-store'
       });
       const data = await response.json();
-      setSessions(data);
+      
+      // Ensure data is an array
+      const sessionsArray = Array.isArray(data) ? data : [];
+      setSessions(sessionsArray);
       
       const categories = {};
-      data.forEach((session) => {
+      sessionsArray.forEach((session) => {
         if (session.title && session.parent_id === null) {
           categories[session.title] = session.title;
         }
@@ -58,6 +61,8 @@ export default function Sessions() {
       setDynamicCategories(categories);
     } catch (error) {
       console.error('Error fetching sessions:', error);
+      setSessions([]);
+      setDynamicCategories({});
     } finally {
       setSessionsLoading(false);
     }
@@ -128,41 +133,31 @@ export default function Sessions() {
     loadPurchases();
   }, [sessionsLoading, authSession?.user]);
 
-  // Check access based on session price and user purchases
-  const hasAccess = useCallback((sessionItem) => {
-    // Free sessions are always accessible
-    if (sessionItem.price === 0 || sessionItem.isFree) {
-      return true;
-    }
-    
-    // If user is not logged in, no access to paid sessions
+  // Check access for child sessions based on purchases
+  const hasChildAccess = useCallback((parentSessionId, childSessionId) => {
+    // If user is not logged in, no access to paid child sessions
     if (!authSession?.user) {
       return false;
     }
     
-    // Check if user has purchased this session
+    // Check if user has purchased this child session
     return purchases.some(
       (purchase) =>
-        purchase.session_id === sessionItem._id &&
+        purchase.session_id === parentSessionId &&
+        purchase.child_session_id === childSessionId &&
         purchase.payment_status === "completed"
     );
   }, [authSession?.user, purchases]);
 
   const handleSessionAction = useCallback((session) => {
-    if (hasAccess(session)) {
-      // Check if this is a parent session with child sessions
-      if (session.child_sessions && session.child_sessions.length > 0) {
-        // Redirect to collection page to see child sessions
-        router.push(`/collection?session=${session._id}`);
-      } else {
-        // Single session - go to player
-        router.push(`/session-player?session=${session._id}`);
-      }
+    // Parent sessions are always accessible - redirect to collection page
+    if (session.child_sessions && session.child_sessions.length > 0) {
+      router.push(`/collection?session=${session._id}`);
     } else {
-      // User needs to purchase
-      router.push(`/checkout?session=${session._id}`);
+      // This shouldn't happen with new structure, but fallback
+      router.push(`/session-player?session=${session._id}`);
     }
-  }, [hasAccess, router]);
+  }, [router]);
 
   // Memoize filtered sessions to prevent recalculation on every render
   const filteredSessions = useMemo(() => {
@@ -217,7 +212,7 @@ export default function Sessions() {
     } finally {
       setDeleting(null);
     }
-  }, []);
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 py-12">
@@ -359,11 +354,9 @@ export default function Sessions() {
                         </Badge>
                       </div>
                       <div className="absolute top-3 right-3">
-                        {!hasAccess(session) && (
-                          <div className="bg-amber-500 text-white p-2 rounded-full">
-                            <Lock className="h-4 w-4" />
-                          </div>
-                        )}
+                        <div className="bg-teal-500 text-white p-2 rounded-full">
+                          <Play className="h-4 w-4" />
+                        </div>
                       </div>
                     </div>
                     <CardTitle className="text-xl font-bold mt-4 text-slate-800 group-hover:text-teal-600 transition-colors">
@@ -419,13 +412,13 @@ export default function Sessions() {
                           <Badge
                             key={lang}
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs bg-white text-slate-700 border-slate-300"
                           >
                             {languageNames[lang]}
                           </Badge>
                         ))}
                         {session.languages?.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs bg-white text-slate-700 border-slate-300">
                             +{session.languages.length - 3} more
                           </Badge>
                         )}
@@ -440,13 +433,8 @@ export default function Sessions() {
                         className="cursor-pointer w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white"
                       >
                         <Play className="mr-2 h-4 w-4" />
-                        {hasAccess(session)
-                          ? session.child_sessions &&
-                            session.child_sessions.length > 0
-                            ? t("view_collection")
-                            : t("start_session")
-                          : session.price > 0
-                          ? `${t("purchase")} - ${formatPrice(session.price)}`
+                        {session.child_sessions && session.child_sessions.length > 0
+                          ? t("view_collection")
                           : t("start_session")}
                       </Button>
                       {authSession?.user?.role === "admin" && (

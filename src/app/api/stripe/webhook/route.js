@@ -70,8 +70,14 @@ export async function POST(request) {
 
     return NextResponse.json({ received: true, processed: true });
   } catch (error) {
+    console.error("Webhook processing error:", {
+      message: error.message,
+      stack: error.stack,
+      eventType: event?.type,
+      eventId: event?.id
+    });
     return NextResponse.json(
-      { error: "Webhook processing failed", eventId: event.id },
+      { error: "Webhook processing failed", eventId: event?.id, details: error.message },
       { status: 500 }
     );
   }
@@ -79,12 +85,19 @@ export async function POST(request) {
 
 async function handleCheckoutCompleted(session) {
   try {
+    console.log('Processing checkout completed for session:', session.id);
+    console.log('Session metadata:', session.metadata);
+    
     // Check if purchase already exists to prevent duplicates
     const existingPurchase = await Purchase.findOne({
-      stripe_payment_intent_id: session.payment_intent,
+      $or: [
+        { stripe_payment_intent_id: session.payment_intent },
+        { stripe_checkout_session_id: session.id }
+      ]
     });
 
     if (existingPurchase) {
+      console.log('Purchase already exists, skipping');
       return;
     }
 
@@ -108,6 +121,8 @@ async function handleCheckoutCompleted(session) {
     const purchaseData = {
       session_id: session.metadata?.sessionId || session.id,
       session_title: session.metadata?.sessionTitle,
+      child_session_id: session.metadata?.childId || null,
+      child_session_title: session.metadata?.childTitle || null,
       user_email: session.customer_email || session.metadata?.userEmail,
       user_name: session.metadata?.userName || session.customer_details?.name,
       amount_paid: session.amount_total / 100,
@@ -139,12 +154,22 @@ async function handleCheckoutCompleted(session) {
       purchase_date: new Date(session.created * 1000),
     };
 
-    await Purchase.create(purchaseData);
+    try {
+      await Purchase.create(purchaseData);
+    } catch (duplicateError) {
+      if (duplicateError.code === 11000) {
+        console.log('Duplicate purchase detected, ignoring');
+        return;
+      }
+      throw duplicateError;
+    }
 
     // Send purchase confirmation email
+    console.log('Sending customer confirmation email...');
     await sendPurchaseConfirmationEmail(session, purchaseData);
 
     // Send purchase notification to owner
+    console.log('Sending owner notification email...');
     await sendOwnerPurchaseNotification(session, purchaseData);
   } catch (error) {
     // Log error to purchase record if possible

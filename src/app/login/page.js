@@ -95,7 +95,7 @@ function ForgotPasswordForm({ email, setEmail, isLoading, setIsLoading, resetEma
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="forgot-email">Email</Label>
+          <Label htmlFor="forgot-email" style={{color: '#334155'}}>Email</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
             <Input
@@ -104,7 +104,7 @@ function ForgotPasswordForm({ email, setEmail, isLoading, setIsLoading, resetEma
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`pl-10 ${error ? 'border-red-500' : ''}`}
+              className={`pl-10 bg-white text-slate-900 ${error ? 'border-red-500' : ''}`}
               required
             />
           </div>
@@ -272,7 +272,7 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-slate-700" style={{color: '#334155'}}>Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                     <Input
@@ -281,7 +281,7 @@ export default function Login() {
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                      className={`pl-10 bg-white text-slate-900 ${errors.email ? 'border-red-500' : ''}`}
                       required
                     />
                   </div>
@@ -296,7 +296,7 @@ export default function Login() {
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password" className="text-slate-700" style={{color: '#334155'}}>Password</Label>
                       <div className="group relative">
                         <HelpCircle className="h-4 w-4 text-slate-400 cursor-help" />
                         <div className="absolute top-6 -left-20 bg-slate-800 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
@@ -323,7 +323,7 @@ export default function Login() {
                       placeholder="Enter your password"
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
-                      className={`pl-10 ${errors.password ? 'border-red-500' : ''} disabled:opacity-100 disabled:cursor-auto`}
+                      className={`pl-10 bg-white text-slate-900 ${errors.password ? 'border-red-500' : ''} disabled:opacity-100 disabled:cursor-auto`}
                       required
                     />
                   </div>

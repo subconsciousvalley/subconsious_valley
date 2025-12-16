@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import {
   Menu,
@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "next-auth/react";
+import SessionManager from "@/components/SessionManager";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -38,18 +39,27 @@ function LayoutContent({ children, currentPageName }) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { currentLanguage, changeLanguage, t, isRTL } = useLanguage();
   
   // Single session call for entire layout
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
 
-
-
-
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    setIsLoggingOut(true);
+    try {
+      // Small delay to show spinner before signOut
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await signOut({ callbackUrl: '/' });
+    } catch (error) {
+      setIsLoggingOut(false);
+    }
   };
 
 
@@ -150,7 +160,7 @@ function LayoutContent({ children, currentPageName }) {
                 </DropdownMenu>
 
                 {/* User Menu */}
-                {!isLoading && (session ? (
+                {mounted && !isLoading && (session ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -158,6 +168,7 @@ function LayoutContent({ children, currentPageName }) {
                         size="sm"
                         className="flex items-center space-x-2 cursor-pointer"
                         style={{ opacity: 1, color: '#000000' }}
+                        disabled={isLoggingOut}
                       >
                         <div className="h-6 w-6 rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 flex items-center justify-center">
                           <User className="h-4 w-4 text-white" />
@@ -178,9 +189,22 @@ function LayoutContent({ children, currentPageName }) {
                           {t("dashboard")}
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-teal-50 hover:text-teal-700">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        {t("logout")}
+                      <DropdownMenuItem 
+                        onClick={handleLogout} 
+                        className="cursor-pointer hover:bg-teal-50 hover:text-teal-700" 
+                        disabled={isLoggingOut}
+                        onSelect={(e) => {
+                          if (isLoggingOut) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        {isLoggingOut ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600 mr-2"></div>
+                        ) : (
+                          <LogOut className="mr-2 h-4 w-4" />
+                        )}
+                        {isLoggingOut ? "Logging out..." : t("logout")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -285,6 +309,19 @@ function LayoutContent({ children, currentPageName }) {
           </div>
         </header>
 
+        {/* Logout Overlay */}
+        {isLoggingOut && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 shadow-xl flex items-center gap-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+              <span className="text-slate-700 font-medium">Logging out...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Session Manager */}
+        <SessionManager />
+        
         {/* Main Content */}
         <main className="flex-1">{children}</main>
 
@@ -395,11 +432,11 @@ function LayoutContent({ children, currentPageName }) {
                       {t("terms_conditions")}
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link href="/admin" className="hover:text-teal-400">
                       {t("admin")}
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             </div>

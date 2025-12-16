@@ -39,10 +39,7 @@ export default function EditSession() {
     category: "",
     languages: [],
     image_url: "",
-    price: 0,
-    original_price: 0,
-    discount_percentage: 0,
-    currency: "AED",
+
     is_sample: false,
   });
 
@@ -114,9 +111,26 @@ export default function EditSession() {
   const handleChildSessionChange = (index, field, value) => {
     setSessionData((prev) => ({
       ...prev,
-      child_sessions: prev.child_sessions.map((child, i) =>
-        i === index ? { ...child, [field]: value } : child
-      ),
+      child_sessions: prev.child_sessions.map((child, i) => {
+        if (i === index) {
+          const updatedChild = { ...child, [field]: value };
+          
+          // Auto-calculate price when discount percentage changes
+          if (field === 'discount_percentage' && updatedChild.original_price) {
+            const discountAmount = (updatedChild.original_price * value) / 100;
+            updatedChild.price = updatedChild.original_price - discountAmount;
+          }
+          
+          // Auto-calculate discount when price or original_price changes
+          if ((field === 'price' || field === 'original_price') && updatedChild.price && updatedChild.original_price) {
+            const discount = ((updatedChild.original_price - updatedChild.price) / updatedChild.original_price) * 100;
+            updatedChild.discount_percentage = Math.round(discount);
+          }
+          
+          return updatedChild;
+        }
+        return child;
+      }),
     }));
   };
 
@@ -366,9 +380,7 @@ export default function EditSession() {
       errors.push("Category is required");
     }
 
-    if (sessionData.price < 0) {
-      errors.push("Price cannot be negative");
-    }
+
 
 
 
@@ -547,7 +559,16 @@ export default function EditSession() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-purple-50 to-pink-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-purple-50 to-pink-50 py-8 relative">
+      {isSaving && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 shadow-xl flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+            <span className="text-slate-700 font-medium">Saving Changes...</span>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6 mb-8">
@@ -656,77 +677,15 @@ export default function EditSession() {
               </CardContent>
             </Card>
 
-            {/* Pricing & Settings */}
+            {/* Settings */}
             <Card className="bg-white/90 backdrop-blur-lg border-0 shadow-xl rounded-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
                 <CardTitle className="text-xl font-semibold text-gray-800 flex items-center">
                   <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
-                  Pricing & Settings
+                  Settings
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="price"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Current Price (AED)
-                    </Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      value={sessionData.price}
-                      onChange={(e) =>
-                        handleInputChange("price", Number(e.target.value))
-                      }
-                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg h-11"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="original_price"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Original Price (AED)
-                    </Label>
-                    <Input
-                      id="original_price"
-                      type="number"
-                      value={sessionData.original_price}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "original_price",
-                          Number(e.target.value)
-                        )
-                      }
-                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg h-11"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="discount"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Discount %
-                    </Label>
-                    <Input
-                      id="discount"
-                      type="number"
-                      value={sessionData.discount_percentage}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "discount_percentage",
-                          Number(e.target.value)
-                        )
-                      }
-                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg h-11"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
 
                 <div className="space-y-3">
                   <Label className="text-sm font-medium text-gray-700">
@@ -863,6 +822,66 @@ export default function EditSession() {
                                 className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg resize-none"
                                 placeholder="Describe this child session..."
                               />
+                            </div>
+
+                            {/* Child Session Pricing */}
+                            <div className="grid md:grid-cols-3 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  Price (AED)
+                                </Label>
+                                <Input
+                                  type="number"
+                                  value={child.price ?? ""}
+                                  onChange={(e) =>
+                                    handleChildSessionChange(
+                                      index,
+                                      "price",
+                                      e.target.value === "" ? null : Number(e.target.value)
+                                    )
+                                  }
+                                  className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg"
+                                  placeholder="0.00"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  Original Price (AED)
+                                </Label>
+                                <Input
+                                  type="number"
+                                  value={child.original_price ?? ""}
+                                  onChange={(e) =>
+                                    handleChildSessionChange(
+                                      index,
+                                      "original_price",
+                                      e.target.value === "" ? null : Number(e.target.value)
+                                    )
+                                  }
+                                  className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg"
+                                  placeholder="0.00"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">
+                                  Discount %
+                                </Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={child.discount_percentage ?? ""}
+                                  onChange={(e) =>
+                                    handleChildSessionChange(
+                                      index,
+                                      "discount_percentage",
+                                      e.target.value === "" ? null : Number(e.target.value)
+                                    )
+                                  }
+                                  className="border-gray-200 focus:border-teal-500 focus:ring-teal-500/20 rounded-lg"
+                                  placeholder="0"
+                                />
+                              </div>
                             </div>
 
                             {/* Sub-Sessions */}
@@ -1133,7 +1152,7 @@ export default function EditSession() {
                   className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  Save Changes
                 </Button>
               </div>
             </CardContent>

@@ -54,33 +54,25 @@ const childSessionSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  // duration: {
-  //   type: Number,
-  //   default: 25
-  // },
-  // audio_urls: {
-  //   hindi: String,
-  //   english: String,
-  //   arabic: String
-  // },
   image_url: {
     type: String
   },
-  // materials: [{
-  //   name: {
-  //     type: String,
-  //     required: true
-  //   },
-  //   link: {
-  //     type: String,
-  //     required: true
-  //   }
-  // }],
-  // order: {
-  //   type: Number,
-  //   default: 1
-  // },
-  // Add sub-children support
+  price: {
+    type: Number,
+    default: 0
+  },
+  original_price: {
+    type: Number,
+    default: 0
+  },
+  discount_percentage: {
+    type: Number,
+    default: 0
+  },
+  currency: {
+    type: String,
+    default: 'AED'
+  },
   sub_sessions: [subChildSessionSchema]
 });
 
@@ -153,22 +145,6 @@ const sessionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Session',
     default: null
-  },
-  price: {
-    type: Number,
-    default: 0
-  },
-  original_price: {
-    type: Number,
-    default: 0
-  },
-  discount_percentage: {
-    type: Number,
-    default: 0
-  },
-  currency: {
-    type: String,
-    default: 'AED'
   },
   child_sessions: [childSessionSchema]
 }, {

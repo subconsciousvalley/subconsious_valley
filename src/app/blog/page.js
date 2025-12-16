@@ -222,7 +222,7 @@ export default function Blog() {
                     {post.tags && post.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {post.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
+                          <Badge key={tag} variant="outline" className="text-xs text-gray-700">
                             {tag}
                           </Badge>
                         ))}
