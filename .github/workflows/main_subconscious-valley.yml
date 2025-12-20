@@ -73,4 +73,4 @@ jobs:
           app-name: 'subconscious-valley' # <-- your Azure Web App name
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E8CF81FC53C74CB08FDFA91C0D24E621 }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
