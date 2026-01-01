@@ -13,7 +13,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const { sessionId, productSessionId, sessionTitle } = await request.json();
+    const { sessionId, productSessionId, sessionTitle, childId } = await request.json();
 
     // Retrieve checkout session from Stripe
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
@@ -46,6 +46,8 @@ export async function POST(request) {
       const purchaseData = {
         session_id: productSessionId,
         session_title: sessionTitle || 'Unknown Session',
+        child_session_id: checkoutSession.metadata?.childId && checkoutSession.metadata.childId !== '' ? checkoutSession.metadata.childId : null,
+        child_session_title: checkoutSession.metadata?.childTitle && checkoutSession.metadata.childTitle !== '' ? checkoutSession.metadata.childTitle : null,
         user_email: checkoutSession.customer_email || session.user.email,
         user_name: checkoutSession.customer_details?.name || session.user.name || '',
         amount_paid: checkoutSession.amount_total / 100,
