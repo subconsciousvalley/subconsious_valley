@@ -446,7 +446,7 @@ async function sendOwnerPurchaseNotification(session, purchaseData) {
 
     const mailOptions = {
       from: process.env.SMTP_USER,
-      to: "hello@subconsciousvalley.com",
+      to: "subconsciousvalley@gmail.com",
       subject: `New Purchase: ${purchaseData.session_title} - ${purchaseData.amount_paid} ${purchaseData.currency}`,
       html: emailHtml,
     };
