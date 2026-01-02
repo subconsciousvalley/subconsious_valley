@@ -54,7 +54,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid session price' }, { status: 400 });
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout sessions
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       customer_email: session.user.email,
