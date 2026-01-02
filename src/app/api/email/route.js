@@ -125,7 +125,7 @@ async function handleSubscription(data) {
 
   const mailOptions = {
     from: process.env.SMTP_USER,
-    to: 'hello@subconsciousvalley.com;sajid.azure@gmail.com',
+    to: 'subconsciousvalley@gmail.com;sajid.azure@gmail.com',
     subject: `New Newsletter Subscription: ${name}`,
     html: subscriptionHtml,
   };
