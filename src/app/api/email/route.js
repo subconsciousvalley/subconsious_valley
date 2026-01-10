@@ -91,7 +91,7 @@ async function handleFeedback(data) {
 
   const mailOptions = {
     from: process.env.SMTP_USER,
-    to: 'hello@subconsciousvalley.com;sajid.azure@gmail.com',
+    to: 'hello@subconsciousvalley.com',
     subject: `Session Feedback: ${sessionTitle || 'Unknown Session'}`,
     html: feedbackHtml,
   };
@@ -125,11 +125,88 @@ async function handleSubscription(data) {
 
   const mailOptions = {
     from: process.env.SMTP_USER,
-    to: 'subconsciousvalley@gmail.com;sajid.azure@gmail.com',
+    to: 'hello@subconsciousvalley.com',
     subject: `New Newsletter Subscription: ${name}`,
     html: subscriptionHtml,
   };
 
   await transporter.sendMail(mailOptions);
   return NextResponse.json({ success: true, message: 'Subscription successful' });
+}
+
+export async function sendWelcomeEmail(userEmail, userName) {
+  try {
+    const firstName = userName?.split(' ')[0] || 'Friend';
+    
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const welcomeHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+        <p>Dear ${firstName},</p>
+        
+        <p><strong>Welcome to Subconscious Valley.</strong><br>
+        I'm truly glad you're here.</p>
+        
+        <p>Before anything else, I want you to know this, this is your space.</p>
+        
+        <p>A space where you don't need to explain yourself, justify how you feel, or translate your emotions into words that don't quite fit. This is a space where healing is personal, gentle, and deeply understood.</p>
+        
+        <p><strong>I'd like to share why Subconscious Valley exists.</strong></p>
+        
+        <p>There was a time in my own life when everything looked "fine" on the outside, yet inside I carried unspoken emotions, unanswered questions, and a quiet longing for peace. That phase taught me something essential: real transformation doesn't begin on the surface, it begins in the subconscious.</p>
+        
+        <p>And the subconscious understands comfort.<br>
+        It understands familiarity.<br>
+        It understands the language of the heart.</p>
+        
+        <p>That is why Subconscious Valley was created as an audio-based therapeutic space, so healing can reach you even when you're tired, overwhelmed, or unable to put your feelings into words. This is also why our sessions are available in languages that feel natural to you, allowing your mind to feel safe before it begins to heal.</p>
+        
+        <p>For many, this may be the first time they experience therapeutic guidance in a language that truly feels like home. And that matters more than we often realize. When the mind feels safe and familiar, it opens more easily, absorbs more gently, and transforms more deeply.</p>
+        
+        <p><strong>Why is it important for me to be part of your journey?</strong></p>
+        
+        <p>Because healing should never feel lonely.<br>
+        Because guidance matters when emotions feel heavy.<br>
+        And because sometimes, all we need is a calm, reassuring voice, one that understands both the mind and emotions, without judgment.</p>
+        
+        <p>I don't see you as a "subscriber."<br>
+        I see you as someone who has chosen themselves.<br>
+        Someone ready to listen inward, heal softly, and grow at their own pace.</p>
+        
+        <p>As you explore Subconscious Valley, allow the audios to meet you where you are, during moments of stillness, stress, reflection, or rest. Let them work quietly in the background of your life, gently supporting you and helping you reconnect with the strength that already exists within you.</p>
+        
+        <p>This is not about fixing yourself; you are not broken.<br>
+        This is about returning to yourself.</p>
+        
+        <p>Thank you for trusting this space.<br>
+        Thank you for trusting your journey.</p>
+        
+        <p>With warmth and care,</p>
+        
+        <p><strong>Vanita</strong><br>
+        Founder & Hypnotherapist<br>
+        Subconscious Valley</p>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: userEmail,
+      subject: 'Welcome to Subconscious Valley',
+      html: welcomeHtml,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent to:', userEmail);
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+  }
 }

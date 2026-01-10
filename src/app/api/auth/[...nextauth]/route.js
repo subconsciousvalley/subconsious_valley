@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { sendWelcomeEmail } from "../../email/route";
 
 const handler = NextAuth({
   providers: [
@@ -86,9 +87,13 @@ const handler = NextAuth({
               googleId: user.id,
               role: "user",
             });
+            
+            // Send welcome email to new Google users
+            await sendWelcomeEmail(user.email, user.name);
           }
           return true;
         } catch (error) {
+          console.error('Google signIn error:', error);
           return false;
         }
       }

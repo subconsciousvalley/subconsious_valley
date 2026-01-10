@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { sendWelcomeEmail } from "../email/route";
 
 export async function POST(request) {
   try {
@@ -83,6 +84,9 @@ export async function POST(request) {
       provider: "credentials",
       role: "user",
     });
+
+    // Send welcome email
+    await sendWelcomeEmail(normalizedEmail, name);
 
     return Response.json(
       {
