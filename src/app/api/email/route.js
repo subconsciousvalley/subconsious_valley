@@ -41,7 +41,7 @@ export async function POST(request) {
 
     const mailOptions = {
       from: process.env.SMTP_USER,
-      to: 'hello@subconsciousvalley.com;sajid.azure@gmail.com', // Always send to this email
+      to: 'hello@subconsciousvalley.com', // Always send to this email
       // to: 'sajid.azure@gmail.com', // Always send to this email
       replyTo: email, // Allow replying to customer
       subject: `New Contact Form Submission: ${subject}`,
