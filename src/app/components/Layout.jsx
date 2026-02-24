@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import React, { useState, useEffect, Suspense } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -90,10 +91,14 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex justify-between items-center h-16">
               {/* Logo */}
               <Link href="/">
-                <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b466b0cee8741d9176529a/56cf4bd54_SubconciousValley5.png"
+                <Image
+                  src="https://cdn.subconsciousvalley.workers.dev/legend.png"
                   alt="Subconscious Valley Logo"
+                  width={120}
+                  height={48}
                   className="h-12 w-auto"
+                  priority
+                  quality={90}
                 />
               </Link>
 
@@ -332,10 +337,14 @@ function LayoutContent({ children, currentPageName }) {
               <div className="md:col-span-2">
                 <div className="mb-4">
                   <Link href="/">
-                    <img
-                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68b466b0cee8741d9176529a/56cf4bd54_SubconciousValley5.png"
+                    <Image
+                      src="https://cdn.subconsciousvalley.workers.dev/legend.png"
                       alt="Subconscious Valley Logo"
+                      width={120}
+                      height={48}
                       className="h-12 w-auto bg-white p-1 rounded"
+                      priority
+                      quality={90}
                     />
                   </Link>
                 </div>

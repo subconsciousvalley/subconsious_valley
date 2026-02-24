@@ -1,17 +1,30 @@
 "use client";
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo, lazy, Suspense, memo } from "react";
 import { CustomTabs } from "./components/CustomTabs";
 import { CustomProgress } from "./components/CustomProgress";
-import About from "./about/page";
-import Contact from "./contact/page";
 import { useLanguage } from "./components/LanguageProvider";
-import SubscriptionPopup from "@/components/SubscriptionPopup";
+
+// Lazy load heavy components
+const About = lazy(() => import("./about/page"));
+const Contact = lazy(() => import("./contact/page"));
+const SubscriptionPopup = lazy(() => import("@/components/SubscriptionPopup"));
+
+// Memoized loading dots component
+const LoadingDots = memo(() => (
+  <div className="flex space-x-2">
+    <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce"></div>
+    <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+    <div className="w-3 h-3 bg-cyan-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+  </div>
+));
+LoadingDots.displayName = 'LoadingDots';
 
 export default function Home() {
   const videoRef = useRef(null);
   const popupVideoRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const { t, isRTL } = useLanguage();
   const [isSticky, setIsSticky] = useState(false);
   const [progress, setProgress] = useState(20);
@@ -150,15 +163,23 @@ export default function Home() {
   return (
     <>
       <div className="relative h-screen">
+        {!videoLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-black to-emerald-900 flex items-center justify-center">
+            <LoadingDots />
+          </div>
+        )}
+        
         <video
           ref={videoRef}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover transition-opacity duration-700 ${
+            videoLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           autoPlay
           loop
           muted
           playsInline
-          preload="auto"
-          poster="https://cdn.subconsciousvalley.workers.dev/main_banner.jpeg"
+          preload="metadata"
+          onLoadedData={() => setVideoLoaded(true)}
         >
           <source
             src="https://cdn.subconsciousvalley.workers.dev/hero_video.mp4"
@@ -297,24 +318,9 @@ export default function Home() {
         </section> */}
 
         <section ref={section2Ref} className="min-h-screen p-8  bg-gray-50">
-          {/* <h2 className="text-3xl font-bold mb-6">About Us</h2>
-          <p className="text-lg mb-4">
-            We are pioneers in consciousness exploration and brainwave
-            entrainment technology.
-          </p>
-          <p className="text-lg mb-4">
-            Our team combines decades of neuroscience research with ancient
-            wisdom traditions.
-          </p>
-          <p className="text-lg mb-4">
-            We believe in the power of altered states of consciousness to
-            transform lives and unlock human potential.
-          </p>
-          <p className="text-lg">
-            Our mission is to make advanced consciousness techniques accessible
-            to everyone seeking personal growth.
-          </p> */}
-          <About t={t} />
+          <Suspense fallback={<div className="flex justify-center p-8"><LoadingDots /></div>}>
+            <About t={t} />
+          </Suspense>
         </section>
 
         <section
@@ -322,15 +328,19 @@ export default function Home() {
           id="contact-section"
           className="p-8 pb-20 bg-gray-50"
         >
-          <Contact t={t} />
+          <Suspense fallback={<div className="flex justify-center p-8"><LoadingDots /></div>}>
+            <Contact t={t} />
+          </Suspense>
         </section>
       </div>
 
       {/* Subscription Popup */}
-      <SubscriptionPopup 
-        isOpen={showSubscriptionPopup}
-        onClose={() => setShowSubscriptionPopup(false)}
-      />
+      <Suspense fallback={null}>
+        <SubscriptionPopup 
+          isOpen={showSubscriptionPopup}
+          onClose={() => setShowSubscriptionPopup(false)}
+        />
+      </Suspense>
     </>
   );
 }

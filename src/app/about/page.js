@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card.jsx";
 import { Badge } from "@/components/ui/badge";
@@ -127,10 +128,16 @@ export default function About({ t: propT }) {
               className="relative"
             >
               <div className="relative">
-                <img
+                <Image
                   src="https://cdn.subconsciousvalley.workers.dev/founderImage.jpg"
                   alt="Vanita Pande - Founder"
+                  width={600}
+                  height={800}
                   className="rounded-2xl shadow-2xl"
+                  priority
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmQAAP/2Q=="
                 />
                 <div className="absolute -bottom-4 -right-4 bg-white p-4 rounded-xl shadow-lg">
                   <p className="text-sm font-semibold text-slate-800">
@@ -274,10 +281,15 @@ export default function About({ t: propT }) {
               className="relative"
             >
               <div className="relative">
-                <img
+                <Image
                   src="https://cdn.subconsciousvalley.workers.dev/coFounderImage.jpg"
                   alt="Sara - Co-Founder"
+                  width={430}
+                  height={100}
                   className="rounded-2xl shadow-2xl"
+                  // style={{ maxWidth: '100%', height: 'auto' }}
+                  priority
+                  quality={85}
                 />
                 <div className="absolute -bottom-4 -left-4 bg-white p-4 rounded-xl shadow-lg">
                   <p className="text-sm font-semibold text-slate-800">
@@ -287,7 +299,7 @@ export default function About({ t: propT }) {
                 </div>
               </div>
             </motion.div>
-
+            
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -360,10 +372,14 @@ export default function About({ t: propT }) {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img
+              <Image
                 src="https://cdn.subconsciousvalley.workers.dev/AWARDS.jpeg"
                 alt="Professional Excellence Awards for Global Wellness Innovation 2025"
-                className="rounded-2xl shadow-2xl w-full"
+                width={600}
+                height={800}
+                className="rounded-2xl shadow-2xl w-full h-auto"
+                style={{ maxWidth: '100%', height: 'auto' }}
+                quality={85}
               />
             </motion.div>
           </div>

@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
+import Image from "next/image";
 
 export default function BlogPost() {
   const params = useParams();
@@ -91,7 +92,15 @@ export default function BlogPost() {
             {post.featured_image && (
               <CardHeader className="p-0">
                 <div className="aspect-video">
-                  <img src={post.featured_image} alt={getTranslated(post, 'title')} className="w-full h-full object-cover" />
+                  <Image 
+                    src={post.featured_image} 
+                    alt={getTranslated(post, 'title')} 
+                    width={800}
+                    height={450}
+                    className="w-full h-full object-cover"
+                    priority
+                    quality={85}
+                  />
                 </div>
               </CardHeader>
             )}

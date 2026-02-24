@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -110,12 +111,14 @@ export default function Blog() {
               <div className="grid lg:grid-cols-2">
                 <div className="aspect-video lg:aspect-auto">
                   {posts[0].featured_image ? (
-                    <img 
+                    <Image 
                       src={posts[0].featured_image}
                       alt={getTranslated(posts[0], 'title')}
+                      width={800}
+                      height={600}
                       className="w-full h-full object-contain"
-                      loading="eager"
-                      fetchPriority="high"
+                      priority
+                      quality={85}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center">
@@ -186,12 +189,14 @@ export default function Blog() {
                   <CardHeader className="p-0">
                     <div className="aspect-video overflow-hidden rounded-t-2xl">
                       {post.featured_image ? (
-                        <img 
+                        <Image 
                           src={post.featured_image}
                           alt={getTranslated(post, 'title')}
+                          width={400}
+                          height={225}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading={index < 2 ? "eager" : "lazy"}
-                          fetchPriority={index < 2 ? "high" : "low"}
+                          priority={index < 2}
+                          quality={85}
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center">

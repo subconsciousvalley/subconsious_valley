@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -238,10 +239,13 @@ export default function Collection() {
                 <CardHeader className="relative overflow-hidden rounded-t-2xl">
                   <div className="aspect-video bg-gradient-to-br from-teal-100 to-emerald-100 rounded-xl relative overflow-hidden">
                     {child.image_url ? (
-                      <img
+                      <Image
                         src={child.image_url}
                         alt={child.title}
+                        width={400}
+                        height={225}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        quality={85}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

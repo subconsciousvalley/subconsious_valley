@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 function CheckoutContent() {
   const { data: userSession, status } = useSession();
@@ -258,10 +259,13 @@ function CheckoutContent() {
               <CardContent>
                 <div className="flex gap-4">
                   {session.image_url && (
-                    <img 
+                    <Image 
                       src={session.image_url} 
                       alt={session.title}
+                      width={96}
+                      height={96}
                       className="w-24 h-24 object-cover rounded-lg"
+                      quality={85}
                     />
                   )}
                   <div className="flex-1">

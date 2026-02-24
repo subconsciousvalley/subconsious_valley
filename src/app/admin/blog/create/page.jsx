@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -258,10 +259,13 @@ export default function CreateBlogPost() {
                   <div className="w-2 h-2 bg-teal-600 rounded-full mr-3"></div>
                   Featured Image Preview
                 </h3>
-                <img 
+                <Image 
                   src={formData.featured_image} 
                   alt="Featured" 
+                  width={400}
+                  height={128}
                   className="w-full h-32 object-cover rounded-lg border border-slate-200"
+                  quality={85}
                   onError={(e) => e.target.style.display = 'none'}
                 />
               </div>
