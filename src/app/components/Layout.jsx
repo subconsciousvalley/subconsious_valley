@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut, useSession } from "next-auth/react";
 import SessionManager from "@/components/SessionManager";
+import WhatsAppFloat from "./WhatsAppFloat";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
@@ -326,6 +327,9 @@ function LayoutContent({ children, currentPageName }) {
 
         {/* Session Manager */}
         <SessionManager />
+        
+        {/* WhatsApp Float */}
+        <WhatsAppFloat />
         
         {/* Main Content */}
         <main className="flex-1">{children}</main>
