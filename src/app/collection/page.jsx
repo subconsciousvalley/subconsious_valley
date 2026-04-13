@@ -66,12 +66,23 @@ export default function Collection() {
       return false;
     }
     
-    return purchases.some(
+    // Check if specific child is purchased
+    const hasPurchasedChild = purchases.some(
       (purchase) =>
         purchase.session_id === parentSession?._id &&
         purchase.child_session_id === childSession._id &&
         purchase.payment_status === "completed"
     );
+    
+    // Check if parent session is purchased (grants access to all children)
+    const hasPurchasedParent = purchases.some(
+      (purchase) =>
+        purchase.session_id === parentSession?._id &&
+        !purchase.child_session_id &&
+        purchase.payment_status === "completed"
+    );
+    
+    return hasPurchasedChild || hasPurchasedParent;
   }, [authSession?.user, purchases, parentSession]);
 
   const toggleChildExpansion = useCallback((childId) => {

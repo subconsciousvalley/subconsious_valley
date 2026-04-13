@@ -184,12 +184,20 @@ function SessionPlayerContent() {
               p.payment_status === "completed"
           );
           
+          // Check if parent session is purchased (grants access to all children)
+          const hasPurchasedParent = purchases.some(
+            (p) =>
+              p.session_id === sessionId &&
+              !p.child_session_id &&
+              p.payment_status === "completed"
+          );
+          
           // Get the child session to check if it's free
           const childSession = parentSession.child_sessions?.find(
             (child) => child._id?.toString() === childId
           );
           
-          hasAccess = hasPurchasedChild || !childSession?.price || childSession?.price === 0;
+          hasAccess = hasPurchasedChild || hasPurchasedParent || !childSession?.price || childSession?.price === 0;
         } else {
           // For parent sessions, they are always free to browse
           hasAccess = true;
