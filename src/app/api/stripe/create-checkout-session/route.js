@@ -54,9 +54,13 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid session price' }, { status: 400 });
     }
 
+    // Determine payment methods and currency
+    const currency = (sessionData.currency?.toLowerCase() || 'aed');
+    const paymentMethods = currency === 'inr' ? ['card', 'upi'] : ['card'];
+
     // Create Stripe checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: paymentMethods,
       customer_email: session.user.email,
       line_items: [
         {
@@ -98,7 +102,7 @@ export async function POST(request) {
       },
       billing_address_collection: 'auto',
       shipping_address_collection: {
-        allowed_countries: ['AE', 'US', 'GB', 'CA', 'AU', 'DE', 'FR', 'ES', 'IT', 'NL'],
+        allowed_countries: ['AE', 'US', 'GB', 'CA', 'AU', 'DE', 'FR', 'ES', 'IT', 'NL', 'IN'],
       },
     });
 

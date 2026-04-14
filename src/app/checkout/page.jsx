@@ -258,10 +258,10 @@ function CheckoutContent() {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
-                  {session.image_url && (
+                  {(childSession?.image_url || session.image_url) && (
                     <Image 
-                      src={session.image_url} 
-                      alt={session.title}
+                      src={childSession?.image_url || session.image_url} 
+                      alt={childSession?.title || session.title}
                       width={96}
                       height={96}
                       className="w-24 h-24 object-cover rounded-lg"
@@ -269,14 +269,10 @@ function CheckoutContent() {
                     />
                   )}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{session.title}</h3>
-                    <p className="text-slate-600 mt-1">{session.description}</p>
+                    <h3 className="font-semibold text-lg">{childSession?.title || session.title}</h3>
+                    <p className="text-slate-600 mt-1">{childSession?.description || session.description}</p>
                     <div className="flex gap-2 mt-3">
-                      {/* <Badge className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {session.duration || 25} minutes
-                      </Badge> */}
-                      <Badge variant="outline">{session.category?.replace('_', ' ')}</Badge>
+                      <Badge variant="outline">{(childSession?.category || session.category)?.replace('_', ' ')}</Badge>
                     </div>
                   </div>
                 </div>
@@ -301,7 +297,13 @@ function CheckoutContent() {
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     <span>Available in multiple languages</span>
                   </div>
-                  {session.child_sessions && session.child_sessions.length > 0 && (
+                  {childSession?.sub_sessions && childSession.sub_sessions.length > 0 && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      <span>{childSession.sub_sessions.length} sub-sessions included</span>
+                    </div>
+                  )}
+                  {!childSession && session.child_sessions && session.child_sessions.length > 0 && (
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                       <span>{session.child_sessions.length} individual sessions included</span>
