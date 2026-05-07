@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Layout from "./components/Layout";
 import { Providers } from "./providers";
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <GoogleTagManager gtmId="GTM-57W5D2D8" />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
